@@ -1,0 +1,35 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: couponpop-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7.4
+    container_name: couponpop-redis
+    # RDB/AOF 비활성화
+    command: |
+      redis-server --save "" --appendonly no
+    ports:
+      - "${REDIS_PORT}:6379"
+
+  rabbitmq:
+    image: rabbitmq:4.1.5-management
+    container_name: couponpop-rabbitmq
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      - "${RABBITMQ_PORT}:5672"   # RabbitMQ 기본 포트
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672" # RabbitMQ Management UI 포트
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+
+volumes:
+  mysql-data:
+  rabbitmq-data:

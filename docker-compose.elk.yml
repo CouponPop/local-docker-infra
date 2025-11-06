@@ -1,0 +1,72 @@
+services:
+  elastic:
+    build:
+      context: .
+      dockerfile: Dockerfile.elasticsearch
+    container_name: elasticsearch
+    ports:
+      - ${ELASTICSEARCH_PORT}:9200 # 9200번 포트에서 Elasticsearch 실행
+    environment:
+      # 아래 설정은 개발/테스트 환경에서 간단하게 테스트하기 위한 옵션 (운영 환경에서는 설정하면 안 됨)
+      - discovery.type=single-node # 단일 노드 (지금은 알 필요 없음)
+      - xpack.security.enabled=false # 보안 설정
+      - xpack.security.http.ssl.enabled=false # 보안 설정
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - elk_network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.17.4
+    container_name: logstash
+    ports:
+      - ${BEATS_INPUT_PORT}:5044 # Beats 입력 포트
+      - ${LOGSTASH_PORT}:9600 # Logstash 모니터링 API
+    volumes:
+      - ../couponpop-store-service/logstash/pipeline:/usr/share/logstash/pipeline
+      - ../couponpop-store-service/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    depends_on:
+      - elastic
+    networks:
+      - elk_network
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.17.4
+    container_name: filebeat
+    user: root
+    command: ["filebeat", "-e", "--strict.perms=false"]
+    volumes:
+      - ../couponpop-store-service/filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ../couponpop-store-service/logs:/logs:ro # 애플리케이션 로그 디렉토리
+      - filebeat_data:/usr/share/filebeat/data
+    environment:
+      - LOGSTASH_HOSTS=logstash:5044
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    depends_on:
+      - logstash
+    networks:
+      - elk_network
+    restart: unless-stopped
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.4 # 8.17.4 버전
+    container_name: kibana
+    ports:
+      - ${KIBANA_PORT}:5601 # 5601번 포트에서 kibana 실행
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200 # kibana가 통신할 Elasticsearch 주소 알려주기
+    depends_on:
+      - elastic
+    networks:
+      - elk_network
+
+volumes:
+  elasticsearch_data:
+  filebeat_data:
+
+networks:
+  elk_network:
+    driver: bridge

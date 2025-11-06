@@ -1,0 +1,52 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: couponpop-prometheus
+    restart: unless-stopped # 컨테이너가 중지되었을 때 자동 재시작
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml # 설정 파일 경로
+      - --storage.tsdb.path=/prometheus # 데이터 저장 경로
+      - --storage.tsdb.retention.time=7d # 데이터 보존 기간 설정
+      - --web.enable-lifecycle # 핫 리로드 활성화 (POST /-/reload)
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # 설정 파일 매핑
+      - prometheus-data:/prometheus # 데이터 저장소 매핑
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    depends_on:
+      - mysqld_exporter
+    
+  grafana:
+    image: grafana/grafana
+    container_name: couponpop-grafana
+    restart: unless-stopped # 컨테이너가 중지되었을 때 자동 재시작
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin # 기본 admin 비밀번호 설정
+      GF_USERS_ALLOW_SIGN_UP: "false" # 사용자 가입 비활성화
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    depends_on:
+      - prometheus
+
+  mysqld_exporter:
+    image: prom/mysqld-exporter
+    container_name: couponpop-mysqld-exporter
+    restart: unless-stopped # 컨테이너가 중지되었을 때 자동 재시작
+    command:
+      - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}:${MYSQLD_EXPORTER_PASSWORD} # MySQL 사용자명과 비밀번호
+      - --mysqld.address=host.docker.internal:${DB_PORT} # MySQL 호스트와 포트
+      - --collect.global_status # MySQL 글로벌 상태 수집
+      - --collect.engine_innodb_status # InnoDB 상태 수집
+      - --collect.info_schema.userstats # 사용자 통계 수집
+      - --collect.perf_schema.tableiowaits # 테이블 I/O 대기 시간 수집
+      - --collect.perf_schema.file_events # 파일 이벤트 수집
+    ports:
+      - "${MYSQLD_EXPORTER_PORT}:9104"
+
+volumes:
+  prometheus-data:
+  grafana-data:
