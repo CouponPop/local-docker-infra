@@ -4,6 +4,7 @@ services:
     container_name: couponpop-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: Asia/Seoul
     ports:
       - "${DB_PORT}:3306"
     volumes:
@@ -23,12 +24,21 @@ services:
     container_name: couponpop-rabbitmq
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+      - ./config/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     ports:
       - "${RABBITMQ_PORT}:5672"   # RabbitMQ 기본 포트
       - "${RABBITMQ_MANAGEMENT_PORT}:15672" # RabbitMQ Management UI 포트
+      - "15692:15692"   # Prometheus metrics endpoint
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
+    command: >
+      sh -c "rabbitmq-plugins enable --offline rabbitmq_prometheus && rabbitmq-server"
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   mysql-data:
