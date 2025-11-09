@@ -2,11 +2,10 @@ services:
   mysql-master:
     container_name: couponpop-mysql-master
     image: mysql:8.0.42
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: won9975744
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - '3306:3306'
+      - '${DB_MASTER_PORT}:3306'
     volumes:
       - db-master:/var/lib/mysql
       - db-master:/var/lib/mysql-files
@@ -26,11 +25,10 @@ services:
   mysql-slave:
     container_name: couponpop-mysql-slave
     image: mysql:8.0.42
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: won9975744
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     ports:
-      - '3307:3306'
+      - '${DB_SLAVE_PORT}:3306'
     volumes:
       - db-slave:/var/lib/mysql
       - db-slave:/var/lib/mysql-files
