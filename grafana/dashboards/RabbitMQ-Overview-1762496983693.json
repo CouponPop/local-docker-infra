@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
+  "id": 1,
   "links": [
     {
       "icon": "doc",
@@ -6736,7 +6736,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 7,
+        "w": 3,
         "x": 0,
         "y": 16
       },
@@ -6800,8 +6800,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 7,
-        "x": 7,
+        "w": 3,
+        "x": 3,
         "y": 16
       },
       "id": 76,
@@ -6833,6 +6833,70 @@
         }
       ],
       "title": "쿠폰 사용 DLQ",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 6,
+        "y": 16
+      },
+      "id": 77,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.1",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rabbitmq_queue_messages_ready{instance=\"couponpop-rabbitmq:15692\", job=\"rabbitmq\", queue=\"coupon.usage.stats.fcm.send.dlq\", vhost=\"/\"}",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "쿠폰 사용 통계 알림 DLQ",
       "type": "stat"
     },
     {
@@ -8553,5 +8617,5 @@
   "timezone": "",
   "title": "RabbitMQ-Overview",
   "uid": "Kn5xm-gZk",
-  "version": 4
+  "version": 1
 }
