@@ -1,0 +1,54 @@
+services:
+  mysql-master:
+    container_name: couponpop-mysql-master
+    image: mysql:8.0.42
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: won9975744
+    ports:
+      - '3306:3306'
+    volumes:
+      - db-master:/var/lib/mysql
+      - db-master:/var/lib/mysql-files
+    command:
+      - --innodb-buffer-pool-size=128M
+      - --max-connections=50
+      - --default_authentication_plugin=mysql_native_password
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --max-binlog-size=100M
+      - --expire-logs-days=7
+      - --sync-binlog=1
+    networks:
+      - mysql-net
+
+  mysql-slave:
+    container_name: couponpop-mysql-slave
+    image: mysql:8.0.42
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: won9975744
+    ports:
+      - '3307:3306'
+    volumes:
+      - db-slave:/var/lib/mysql
+      - db-slave:/var/lib/mysql-files
+    command:
+      - --innodb-buffer-pool-size=128M
+      - --max-connections=50
+      - --default-authentication-plugin=mysql_native_password
+      - --server-id=2
+      - --relay-log=mysql-relay-bin
+      - --binlog-format=ROW
+      - --read-only=1
+    networks:
+      - mysql-net
+
+volumes:
+  db-master:
+  db-slave:
+
+networks:
+  mysql-net:
+    driver: bridge
