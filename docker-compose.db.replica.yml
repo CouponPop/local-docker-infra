@@ -1,3 +1,5 @@
+# ❗❗❗ 초기 실행이거나 볼륨을 삭제하셨다면 컨테이너 실행 후 ❗❗❗
+# ❗❗❗ 꼭 `./init-replication.sh` 스크립트 파일을 실행해주세요. ❗❗❗
 services:
   mysql-master:
     container_name: couponpop-mysql-master
@@ -19,6 +21,9 @@ services:
       - --max-binlog-size=100M
       - --expire-logs-days=7
       - --sync-binlog=1
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --log-slave-updates=ON
     networks:
       - mysql-net
 
@@ -40,6 +45,9 @@ services:
       - --relay-log=mysql-relay-bin
       - --binlog-format=ROW
       - --read-only=1
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --log-slave-updates=ON
     networks:
       - mysql-net
 
