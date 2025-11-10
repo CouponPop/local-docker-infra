@@ -35,7 +35,7 @@ STOP REPLICA;
 -- 2) 마스터에서 확인한 File, Position 입력
 CHANGE REPLICATION SOURCE TO
     SOURCE_HOST='couponpop-mysql-master', -- master DB 서버의 호스트명 (IP)
-    SOURCE_PORT=${DB_MASTER_PORT}, -- master DB 서버의 MySQL DB 포트
+    SOURCE_PORT=3306, -- master DB 서버의 MySQL DB 포트
     SOURCE_LOG_FILE='${BINLOG_FILE}', -- master DB 상태 확인에서 확인한 File 부분
     SOURCE_LOG_POS=${BINLOG_POS}, -- master DB 상태 확인에서 확인한 Position 부분
     GET_SOURCE_PUBLIC_KEY=1;
