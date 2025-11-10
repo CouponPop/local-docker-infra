@@ -24,8 +24,6 @@ services:
       - --gtid-mode=ON
       - --enforce-gtid-consistency=ON
       - --log-slave-updates=ON
-    networks:
-      - mysql-net
 
   mysql-slave:
     container_name: couponpop-mysql-slave
@@ -48,13 +46,7 @@ services:
       - --gtid-mode=ON
       - --enforce-gtid-consistency=ON
       - --log-slave-updates=ON
-    networks:
-      - mysql-net
 
 volumes:
   db-master:
   db-slave:
-
-networks:
-  mysql-net:
-    driver: bridge

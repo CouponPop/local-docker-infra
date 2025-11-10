@@ -45,11 +45,18 @@ scrape_configs:
         labels:
           service: "batch-service"
 
-  - job_name: "mysql"
+  - job_name: "mysql-master"
     static_configs:
-      - targets: ["mysqld_exporter:9104"]
+      - targets: ["couponpop-mysqld-exporter-master:9104"]
         labels:
-          service: "mysql"
+          service: "mysql-master"
+
+  - job_name: "mysql-slave"
+    static_configs:
+      - targets: ["couponpop-mysqld-exporter-slave:9104"]
+        labels:
+          service: "mysql-slave"
+
   - job_name: 'rabbitmq'
     metrics_path: /metrics
     static_configs:

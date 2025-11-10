@@ -13,8 +13,6 @@ services:
       - prometheus-data:/prometheus # 데이터 저장소 매핑
     ports:
       - "${PROMETHEUS_PORT}:9090"
-    depends_on:
-      - mysqld_exporter
     
   grafana:
     image: grafana/grafana
@@ -32,20 +30,35 @@ services:
     depends_on:
       - prometheus
 
-  mysqld_exporter:
+  mysqld_exporter_master:
     image: prom/mysqld-exporter
-    container_name: couponpop-mysqld-exporter
+    container_name: couponpop-mysqld-exporter-master
     restart: unless-stopped # 컨테이너가 중지되었을 때 자동 재시작
     command:
       - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}:${MYSQLD_EXPORTER_PASSWORD} # MySQL 사용자명과 비밀번호
-      - --mysqld.address=host.docker.internal:${DB_PORT} # MySQL 호스트와 포트
+      - --mysqld.address=couponpop-mysql-master:3306 # MySQL 호스트와 포트
       - --collect.global_status # MySQL 글로벌 상태 수집
       - --collect.engine_innodb_status # InnoDB 상태 수집
       - --collect.info_schema.userstats # 사용자 통계 수집
       - --collect.perf_schema.tableiowaits # 테이블 I/O 대기 시간 수집
       - --collect.perf_schema.file_events # 파일 이벤트 수집
     ports:
-      - "${MYSQLD_EXPORTER_PORT}:9104"
+      - "${MYSQLD_EXPORTER_MASTER_PORT}:9104"
+
+  mysqld_exporter_slave:
+    image: prom/mysqld-exporter
+    container_name: couponpop-mysqld-exporter-slave
+    restart: unless-stopped # 컨테이너가 중지되었을 때 자동 재시작
+    command:
+      - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}:${MYSQLD_EXPORTER_PASSWORD} # MySQL 사용자명과 비밀번호
+      - --mysqld.address=couponpop-mysql-slave:3306 # MySQL 호스트와 포트
+      - --collect.global_status # MySQL 글로벌 상태 수집
+      - --collect.engine_innodb_status # InnoDB 상태 수집
+      - --collect.info_schema.userstats # 사용자 통계 수집
+      - --collect.perf_schema.tableiowaits # 테이블 I/O 대기 시간 수집
+      - --collect.perf_schema.file_events # 파일 이벤트 수집
+    ports:
+      - "${MYSQLD_EXPORTER_SLAVE_PORT}:9104"
 
 volumes:
   prometheus-data:

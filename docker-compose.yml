@@ -18,7 +18,7 @@ services:
     ports:
       - "${RABBITMQ_PORT}:5672"   # RabbitMQ 기본 포트
       - "${RABBITMQ_MANAGEMENT_PORT}:15672" # RabbitMQ Management UI 포트
-      - "15692:15692"   # Prometheus metrics endpoint
+      - "${RABBITMQ_METRICS_PORT}:15692"   # Prometheus metrics endpoint
     environment:
       RABBITMQ_NODENAME: rabbit@${RABBITMQ_HOSTNAME}
       RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
